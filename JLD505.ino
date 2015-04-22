@@ -227,14 +227,17 @@ void loop()
 		{		  
 			if (settings.debuggingLevel > 0)
 			{
-				Serial.print(pos);
+				Serial.print("  Temp sensor:");
+                                Serial.print(pos);
 				Serial.print(": ");
-				//sensors.isConnected(pos);
-				// Serial.println(sensors.getCelsius(pos));
-				Serial.println(sensors.getTempCByIndex(pos));
+				Serial.print(sensors.getTempCByIndex(pos));
 			}
+	               Serial.println(); 
 		}
+                 
 	}
+ 
+        
 }
 
 void Save()
@@ -244,8 +247,9 @@ void Save()
 
 void USB()
 {
-  Serial.print (Voltage, 3);   
-  Serial.print ("V ");
+   Serial.print ("JLD505: ");
+ Serial.print (Voltage, 3);   
+  Serial.print ("v ");
   Serial.print (Current, 2);    
   Serial.print ("A ");
   Serial.print (settings.ampHours, 1);    
@@ -253,7 +257,10 @@ void USB()
   Serial.print (Power, 1);        
   Serial.print ("kW ");
   Serial.print (settings.kiloWattHours, 1);    
-  Serial.println ("kWh");
+  Serial.print ("kWh ");
+  Serial.print (settings.SOC, 1);    
+  Serial.println ("% SOC");
+  
   if (Serial.available() > 0)
   {Command = Serial.read();
    if (Command == 'z')
@@ -338,11 +345,11 @@ void CANBUS()
 	canMsg[1] = lowByte(Pwr); // Power Low Byte
 	canMsg[2] = highByte(KWH); // KiloWattHours High Byte
 	canMsg[3] = lowByte(KWH); // KiloWattHours Low Byte
-	canMsg[4] = 0x00; // Not Used
-	canMsg[5] = 0x00; // Not Used
-	canMsg[6] = 0x00; // Not Used
-	canMsg[7] = 0x00; // Not Used
-	CAN.sendMsgBuf(canMsgID, 0, 4, canMsg);
+	canMsg[4] = (sensors.getTempCByIndex(0))+40;
+	canMsg[5] = (sensors.getTempCByIndex(1))+40;
+	canMsg[6] = (sensors.getTempCByIndex(2))+40;
+	canMsg[7] = (sensors.getTempCByIndex(3))+40;
+	CAN.sendMsgBuf(canMsgID, 0, 8, canMsg);
  }
 
 void timestamp()
